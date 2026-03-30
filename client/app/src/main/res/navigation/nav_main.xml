@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.myapplication.presentation.ui.home.HomeFragment"
+        android:label="홈"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_recipeDetailFragment"
+            app:destination="@id/recipeDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/recipeDetailFragment"
+        android:name="com.example.myapplication.presentation.ui.home.RecipeDetailFragment"
+        android:label="레시피 상세"
+        tools:layout="@layout/fragment_recipe_detail">
+        <argument
+            android:name="recommendedDish"
+            app:argType="com.example.myapplication.data.model.RecommendedDish" />
+    </fragment>
+
+    <navigation
+        android:id="@+id/fridge_nav_graph"
+        app:startDestination="@id/fridgeFragment">
+
+        <fragment
+            android:id="@+id/fridgeFragment"
+            android:name="com.example.myapplication.presentation.ui.fridge.FridgeFragment"
+            android:label="냉장고"
+            tools:layout="@layout/fragment_fridge">
+            <action
+                android:id="@+id/action_fridgeFragment_to_ingredientEditFragment"
+                app:destination="@id/ingredientEditFragment" />
+            <action
+                android:id="@+id/action_fridgeFragment_to_ingredientListEditFragment"
+                app:destination="@id/ingredientListEditFragment" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ingredientListEditFragment"
+            android:name="com.example.myapplication.presentation.ui.fridge.IngredientListEditFragment"
+            android:label="재료 목록 편집"
+            tools:layout="@layout/fragment_ingredient_list_edit">
+            <argument
+                android:name="storageId"
+                app:argType="long"
+                android:defaultValue="-1L" />
+            <argument
+                android:name="ingredients"
+                app:argType="string[]"
+                app:nullable="true"
+                android:defaultValue="@null" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ingredientEditFragment"
+            android:name="com.example.myapplication.presentation.ui.fridge.IngredientEditFragment"
+            android:label="IngredientEditFragment"
+            tools:layout="@layout/fragment_ingredient_edit">
+            <action
+                android:id="@+id/action_ingredientEditFragment_to_cameraFragment"
+                app:destination="@id/cameraFragment" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cameraFragment"
+            android:name="com.example.myapplication.presentation.ui.camera.CameraFragment"
+            android:label="Camera"
+            tools:layout="@layout/fragment_camera">
+            <action
+                android:id="@+id/action_cameraFragment_to_ingredientListEditFragment"
+                app:destination="@id/ingredientListEditFragment" >
+                <argument
+                    android:name="ingredients"
+                    app:argType="string[]"
+                    app:nullable="true"
+                    android:defaultValue="@null" />
+            </action>
+        </fragment>
+
+    </navigation>
+
+    <fragment
+        android:id="@+id/myFragment"
+        android:name="com.example.myapplication.presentation.ui.my.MyFragment"
+        android:label="MY"
+        tools:layout="@layout/fragment_my" />
+
+</navigation>

@@ -1,0 +1,7 @@
+# configs/data.yaml
+path: /home/jmgjmg102/my_fridge_image_model/my_fridge-1
+train: train/images
+val: valid/images         # Roboflow는 'valid' 폴더, 키는 'val'로 써도 OK
+test: test/images
+nc: 2
+names: ['Garlic', 'onion']

@@ -1,0 +1,138 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.navigation.safeargs)
+    // ⭐ Hilt 및 KSP 플러그인 적용 ⭐
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
+}
+
+android {
+    namespace = "com.example.myapplication"
+    compileSdk = 36
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
+
+    defaultConfig {
+        applicationId = "com.example.myapplication"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            // ⭐ 2. 개발용(debug) 빌드 시 사용할 서버 주소를 추가합니다.
+            // 에뮬레이터에서 로컬 서버에 접속하기 위한 표준 주소입니다.
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
+        }
+        release {
+            // ⭐ 3. 배포용(release) 빌드 시 사용할 서버 주소를 추가합니다.
+            buildConfigField("String", "BASE_URL", "\"https://api.your-production-domain.com/\"")
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+}
+
+dependencies {
+
+    // 이전 단계에서 추가했던 의존성들은 그대로 둡니다.
+    // CameraX 관련 라이브러리도 mmain의 기존 기능을 위해 그대로 둡니다.
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
+
+    // Navigation
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+
+    // Lifecycle & Coroutines
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Hilt (의존성 주입)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    // CameraX (기존 mmain 기능 유지를 위해 필요)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    // ✅ camera-extensions 모듈을 추가합니다.
+    implementation(libs.androidx.camera.extensions)
+
+    // ✅ 권한 라이브러리를 추가합니다.
+    implementation(libs.ted.permission.normal)
+
+    // RecyclerView
+    implementation(libs.androidx.recyclerview)
+
+    // Room (데이터베이스)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // Desugar for older APIs
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    // 테스팅 라이브러리
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    // Retrofit, OkHttp 의존성
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation("com.squareup.okhttp3:okhttp-urlconnection:4.9.3")
+    // ✅ 영구적인 쿠키 저장을 위한 라이브러리 추가
+    implementation(libs.persistent.cookie.jar)
+
+    // DataStore (세션 관리를 위해 추가)
+    implementation(libs.androidx.datastore.preferences)
+
+    // ❌ 기존 TensorFlow Lite 의존성을 삭제하고,
+    // implementation(libs.tensorflow.lite)
+    // implementation(libs.tensorflow.lite.support)
+    // implementation(libs.tensorflow.lite.task.vision)
+
+    // ✅ ttemp의 TensorFlow Lite 의존성 설정으로 교체합니다.
+    implementation("org.tensorflow:tensorflow-lite:2.12.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4") {
+        exclude(group = "org.tensorflow", module = "tensorflow-lite-api")
+    }
+
+    // Glide 이미지 로딩 라이브러리 추가
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    ksp("com.github.bumptech.glide:compiler:4.16.0")
+}
+
+// ▼▼▼▼▼ 이 코드는 그대로 유지해주세요. (TensorFlow Lite 라이브러리 충돌 방지) ▼▼▼▼▼
+configurations.all {
+    exclude(group = "com.google.ai.edge.litert")
+}

@@ -1,0 +1,84 @@
+# /backend/schemas/dish.py
+
+from pydantic import BaseModel
+from typing import List, Optional, Any
+
+# --- Recipe 스키마를 이곳에 함께 정의하거나, recipe.py로 분리해도 좋습니다. ---
+
+# RecipeIngredient의 상세 정보를 담는 스키마
+class RecipeIngredientInfo(BaseModel):
+    name: str
+    quantity_display: Optional[str] = None
+
+# Recipe의 기본 정보 (생성 시에는 id가 없음)
+class RecipeBase(BaseModel):
+    title: Optional[str] = None
+    difficulty: Optional[int] = None
+    serving_size: Optional[str] = None
+    cooking_time: Optional[int] = None
+    instructions: Optional[Any] = None
+    youtube_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+
+# Recipe 생성 시 입력받는 스키마
+class RecipeCreate(RecipeBase):
+    ingredients: List[RecipeIngredientInfo] # 재료 정보를 함께 받음
+
+# 1. Ingredient 모델을 위한 스키마
+class IngredientResponse(BaseModel):
+    name: str
+    class Config:
+        from_attributes = True
+
+# 2. RecipeIngredient 모델을 위한 스키마 (IngredientResponse를 중첩)
+class RecipeIngredientResponse(BaseModel):
+    quantity_display: Optional[str] = None
+    ingredient: IngredientResponse  # 'ingredient' 객체 안에 'name'이 있는 구조
+    class Config:
+        from_attributes = True
+
+# 3. Recipe 응답 스키마가 새로운 RecipeIngredientResponse를 사용하도록 수정
+class Recipe(RecipeBase):
+    id: int
+    ingredients: List[RecipeIngredientResponse]
+    class Config:
+        from_attributes = True
+
+# --- Dish 스키마 ---
+
+class DishBase(BaseModel):
+    name: str
+    cuisine_type: Optional[str] = None
+    tags: Optional[List[str]] = None
+
+# 관리자가 Dish를 생성할 때 입력하는 스키마
+class DishCreate(DishBase):
+    recipes: List[RecipeCreate] # Dish를 만들 때 레시피 정보도 함께 받음
+
+# Dish 정보를 반환하는 스키마 (모든 레시피 포함)
+class Dish(DishBase):
+    id: int
+    recipes: List[Recipe]
+
+    class Config:
+        from_attributes = True
+        
+        
+# 검색 결과를 위한 스키마 (Grouped Response)
+class GroupedDishSearchResult(BaseModel):
+    dish_id: int
+    dish_name: str
+    recipe_ids: List[int]
+
+class GroupedSearchResponse(BaseModel):
+    total: int
+    results: List[GroupedDishSearchResult]
+
+# 검색 요청을 위한 스키마 (Request Body)
+class SearchRequest(BaseModel):
+    ingredients: Optional[List[str]] = None # 재료가 없을 수도 있으므로 Optional
+    q: Optional[str] = None
+    size: int = 20
+    topk: int = 3
+    ing_mode: str = "RATIO"
+    ing_ratio: float = 0.6
